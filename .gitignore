@@ -4,6 +4,7 @@ wayws
 # Generated files
 ext_workspace_client.c
 ext_workspace_client.h
+ext-workspace-v1.xml
 
 # Object files
 *.o
