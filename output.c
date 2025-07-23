@@ -6,6 +6,17 @@
 #include <string.h>
 
 void print_waybar_output(struct wayws_state *state) {
+  // Check if we have multiple outputs and no specific output is specified
+  if (!state->opt_output_name) {
+    int output_count = 0;
+    for (struct output *o = state->all_outputs; o; o = o->next) {
+      output_count++;
+    }
+    if (output_count > 1) {
+      die("Error: Multiple outputs detected. Use --output to specify which output to use with --waybar.\n");
+    }
+  }
+
   printf("{\"text\":\"");
   int first_monitor_printed = 1;
   for (struct output *o = state->all_outputs; o; o = o->next) {
@@ -22,9 +33,8 @@ void print_waybar_output(struct wayws_state *state) {
     if (!current_group)
       continue;
     if (!first_monitor_printed)
-      printf("\n");
+      printf("\\n");
     first_monitor_printed = 0;
-    printf("%s:", o->name ? o->name : "(unknown)");
     
     // Count workspaces for this monitor first
     size_t monitor_ws_count = 0;
@@ -54,7 +64,7 @@ void print_waybar_output(struct wayws_state *state) {
     for (size_t i = 0; i < monitor_ws_count; i++) {
       printf("%s", monitor_workspaces[i]->active ? state->glyph_active : state->glyph_empty);
       if ((i + 1) % state->grid_cols == 0 && i < monitor_ws_count - 1)
-        printf("\n");
+        printf("\\n");
       else if (i < monitor_ws_count - 1)
         printf(" ");
     }

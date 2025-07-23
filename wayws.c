@@ -278,9 +278,6 @@ static struct ws *find_target_workspace(struct wayws_state *state) {
 }
 
 static void activate_workspace(struct wayws_state *state, struct ws *target) {
-  // Get current workspace before activation
-  struct ws *current = current_ws(state, NULL);
-  
   ext_workspace_handle_v1_activate(target->h);
   ext_workspace_manager_v1_commit(state->mgr);
   wl_display_flush(state->dpy);
