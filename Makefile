@@ -81,4 +81,4 @@ install:
 	sudo install -Dm755 $(TARGET) /usr/local/bin/$(TARGET)
 
 clean:
-	rm -f $(TARGET) $(WAYWS_OBJ) $(CLIENT_H) $(CLIENT_C) ext-workspace-v1.xml $(TEST_RUNNER_UTIL) $(TEST_RUNNER_WORKSPACE) $(TEST_RUNNER_EVENT) $(TEST_RUNNER_CLI)
+	rm -f $(TARGET) $(WAYWS_OBJ) $(CLIENT_H) $(CLIENT_C) ext-workspace-v1.xml test_runner*
