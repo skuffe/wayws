@@ -59,14 +59,7 @@ static void test_emit_event_workspace_state(void **state) {
     assert_true(strstr(test_output, "\"hidden\":false") != NULL);
 }
 
-static void test_emit_event_grid_movement(void **state) {
-    struct wayws_state s = {.event_enabled = 1};
-    
-    emit_event(&s, EVENT_GRID_MOVEMENT, "test-ws", "DP-1", 1, 0, 0, 1, 0, 0, DIR_RIGHT, NULL);
-    
-    assert_true(strstr(test_output, "\"type\":\"grid_movement\"") != NULL);
-    assert_true(strstr(test_output, "\"direction\":\"right\"") != NULL);
-}
+
 
 static void test_emit_event_disabled(void **state) {
     struct wayws_state s = {.event_enabled = 0};
@@ -139,7 +132,7 @@ int main(void) {
     const struct CMUnitTest tests[] = {
         cmocka_unit_test_setup_teardown(test_emit_event_workspace_created, setup, teardown),
         cmocka_unit_test_setup_teardown(test_emit_event_workspace_state, setup, teardown),
-        cmocka_unit_test_setup_teardown(test_emit_event_grid_movement, setup, teardown),
+
         cmocka_unit_test_setup_teardown(test_emit_event_disabled, setup, teardown),
         cmocka_unit_test_setup_teardown(test_emit_event_null_names, setup, teardown),
         cmocka_unit_test_setup_teardown(test_emit_event_exec_command, setup, teardown),

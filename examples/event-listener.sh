@@ -31,17 +31,6 @@ echo "Listening for workspace events..."
             echo "Workspace '$workspace' left output '$output'"
             ;;
             
-        "workspace_activated")
-            workspace=$(echo "$event" | jq -r '.workspace.name')
-            output=$(echo "$event" | jq -r '.workspace.output')
-            echo "Activated workspace '$workspace' on output '$output'"
-            
-            # Example: Change wallpaper based on workspace
-            if [ -f "$HOME/wallpapers/$workspace.jpg" ]; then
-                feh --bg-fill "$HOME/wallpapers/$workspace.jpg" &
-                echo "   Changed wallpaper to $workspace.jpg"
-            fi
-            ;;
             
         "workspace_name")
             workspace=$(echo "$event" | jq -r '.workspace.name')
@@ -83,16 +72,6 @@ echo "Listening for workspace events..."
             fi
             ;;
             
-        "grid_movement")
-            direction=$(echo "$event" | jq -r '.direction')
-            workspace=$(echo "$event" | jq -r '.workspace.name')
-            echo "Grid movement: $direction -> workspace '$workspace'"
-            
-            # Example: Play sound effect for movement
-            if command -v paplay >/dev/null 2>&1; then
-                paplay /usr/share/sounds/freedesktop/stereo/complete.oga &
-            fi
-            ;;
             
         *)
             echo "Unknown event: $event"

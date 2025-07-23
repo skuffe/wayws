@@ -56,10 +56,7 @@ typedef enum {
     EVENT_OUTPUT_ENTER,           // output_enter event from group
     EVENT_OUTPUT_LEAVE,           // output_leave event from group
     
-    // Custom events (not in protocol, but useful)
-    EVENT_GRID_MOVEMENT,          // When user navigates between workspaces
-    EVENT_WORKSPACE_ACTIVATED,    // Convenience: state change with active=true
-    EVENT_WORKSPACE_DEACTIVATED   // Convenience: state change with active=false
+
 } wayws_event_type_t;
 
 // Event structure

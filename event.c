@@ -10,11 +10,6 @@ void emit_event(struct wayws_state *state, wayws_event_type_t type,
                 const char *workspace_name, const char *output_name,
                 int workspace_index, int x, int y, int active, int urgent, int hidden,
                 enum dir direction, void *additional_data) {
-    // Execute command if specified (only for grid movement events)
-    if (state->opt_exec && type == EVENT_GRID_MOVEMENT) {
-        system(state->opt_exec);
-    }
-    
     if (!state->event_enabled && !state->event_callback)
         return;
     
@@ -49,19 +44,13 @@ void emit_event(struct wayws_state *state, wayws_event_type_t type,
                type == EVENT_WORKSPACE_LEAVE ? "workspace_leave" :
                type == EVENT_OUTPUT_ENTER ? "output_enter" :
                type == EVENT_OUTPUT_LEAVE ? "output_leave" :
-               type == EVENT_WORKSPACE_ACTIVATED ? "workspace_activated" :
-               type == EVENT_WORKSPACE_DEACTIVATED ? "workspace_deactivated" :
-               type == EVENT_GRID_MOVEMENT ? "grid_movement" : "unknown",
+               "unknown",
                workspace_name ? workspace_name : "", workspace_index, 
                output_name ? output_name : "", x, y,
                active ? "true" : "false", urgent ? "true" : "false", hidden ? "true" : "false",
                event.timestamp);
         
-        if (type == EVENT_GRID_MOVEMENT) {
-            printf(",\"direction\":\"%s\"",
-                   direction == DIR_UP ? "up" : direction == DIR_DOWN ? "down" : 
-                   direction == DIR_LEFT ? "left" : "right");
-        }
+
         printf("}\n");
         fflush(stdout);
     }

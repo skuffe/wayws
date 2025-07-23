@@ -285,15 +285,8 @@ static void activate_workspace(struct wayws_state *state, struct ws *target) {
   ext_workspace_manager_v1_commit(state->mgr);
   wl_display_flush(state->dpy);
   
-  // Emit grid movement event if we moved from one workspace to another
-  if (current && current != target && state->move_dir != DIR_NONE) {
-    const char *output_name = get_output_name_for_workspace(target);
-    emit_event(state, EVENT_GRID_MOVEMENT, 
-               target->name, output_name, target->index + 1,
-               target->x, target->y, target->active, target->urgent, target->hidden,
-               state->move_dir, NULL);
-  } else if (state->opt_exec) {
-    // Execute command for regular workspace activations (when no event is emitted)
+  // Execute command for all workspace activations
+  if (state->opt_exec) {
     system(state->opt_exec);
   }
 }

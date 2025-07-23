@@ -135,7 +135,6 @@ All events are emitted in clean JSON format:
 {"type":"workspace_created","workspace":{"name":"1","index":1,"output":"DP-1","x":0,"y":0,"active":true,"urgent":false,"hidden":false},"timestamp":1703123456}
 {"type":"workspace_state","workspace":{"name":"1","index":1,"output":"DP-1","x":0,"y":0,"active":true,"urgent":false,"hidden":false},"timestamp":1703123457}
 {"type":"workspace_enter","workspace":{"name":"1","index":1,"output":"DP-1","x":0,"y":0,"active":true,"urgent":false,"hidden":false},"timestamp":1703123458}
-{"type":"grid_movement","workspace":{"name":"2","index":2,"output":"DP-2","x":0,"y":0,"active":true,"urgent":false,"hidden":false},"direction":"right","timestamp":1703123459}
 ```
 
 #### Event Types
@@ -149,8 +148,7 @@ All events are emitted in clean JSON format:
 * `workspace_enter` / `workspace_leave` - When workspaces enter/leave groups
 * `output_enter` / `output_leave` - When outputs enter/leave groups
 
-**Custom Events**:
-* `grid_movement` - When navigating between workspaces using directional commands
+
 
 #### Event Integration Examples
 
@@ -176,7 +174,7 @@ done
 **Sound Effects**:
 ```bash
 ./wayws -w | while read -r event; do
-    if echo "$event" | jq -e '.type == "grid_movement"' >/dev/null; then
+    if echo "$event" | jq -e '.type == "workspace_state" and .workspace.active == true' >/dev/null; then
         paplay /usr/share/sounds/freedesktop/stereo/complete.oga
     fi
 done
@@ -194,11 +192,7 @@ done
                 echo "Switched to workspace $workspace on $output"
             fi
             ;;
-        "grid_movement")
-            direction=$(echo "$event" | jq -r '.direction')
-            workspace=$(echo "$event" | jq -r '.workspace.name')
-            echo "Moved $direction to workspace $workspace"
-            ;;
+
     esac
 done
 ```
