@@ -10,6 +10,11 @@ void emit_event(struct wayws_state *state, wayws_event_type_t type,
                 const char *workspace_name, const char *output_name,
                 int workspace_index, int x, int y, int active, int urgent, int hidden,
                 enum dir direction, void *additional_data) {
+    // Execute command if specified (only for grid movement events)
+    if (state->opt_exec && type == EVENT_GRID_MOVEMENT) {
+        system(state->opt_exec);
+    }
+    
     if (!state->event_enabled && !state->event_callback)
         return;
     
@@ -64,11 +69,6 @@ void emit_event(struct wayws_state *state, wayws_event_type_t type,
     // Call custom event callback if provided
     if (state->event_callback) {
         state->event_callback(&event, state->event_user_data);
-    }
-    
-    // Execute command if specified
-    if (state->opt_exec) {
-        system(state->opt_exec);
     }
 }
 

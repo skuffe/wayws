@@ -292,6 +292,9 @@ static void activate_workspace(struct wayws_state *state, struct ws *target) {
                target->name, output_name, target->index + 1,
                target->x, target->y, target->active, target->urgent, target->hidden,
                state->move_dir, NULL);
+  } else if (state->opt_exec) {
+    // Execute command for regular workspace activations (when no event is emitted)
+    system(state->opt_exec);
   }
 }
 
