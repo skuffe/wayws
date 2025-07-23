@@ -50,6 +50,13 @@ make test-integration # runs only integration tests
   - Error handling
   - Event system integration
 
+### TODO: Missing Tests
+
+The following modules currently lack unit tests:
+- `output.c`: Output formatting functions (requires stdout capture)
+- `wayland.c`: Wayland protocol handling (requires Wayland connection mocking)
+- `wayws.c`: Main application logic (requires integration testing approach)
+
 ---
 
 ## Dependencies
