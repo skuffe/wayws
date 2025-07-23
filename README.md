@@ -17,14 +17,48 @@
 
 ## Build
 
-You need a C toolchain plus `wayland-scanner` and Wayland client headers.
+You need a C compiler like `gcc` or `clang`, plus `wayland-scanner` and the Wayland client headers.
 
 ```sh
 make            # builds wayws
 sudo make install  # optional
 ```
 
-The Makefile uses `zig cc` (drop-in C compiler) by default; set `CC` if you prefer another compiler.
+---
+
+## Testing
+
+The test suite uses the `cmocka` library and includes both unit tests and integration tests.
+
+```sh
+make test           # runs all tests (unit + integration)
+make test-unit      # runs only unit tests
+make test-integration # runs only integration tests
+```
+
+### Test Coverage
+
+- **Unit Tests**: Test individual functions and modules
+  - `test_util`: Utility functions (`isnum`, `xstrdup`, `xrealloc`)
+  - `test_workspace`: Workspace management logic
+  - `test_event`: Event system functionality
+  - `test_cli`: CLI parsing and utility functions
+
+- **Integration Tests**: Test the complete application behavior
+  - CLI argument parsing and validation
+  - Output format generation
+  - Error handling
+  - Event system integration
+
+---
+
+## Dependencies
+
+On Arch Linux and derivatives, you can install the necessary packages using `pacman`:
+
+```sh
+sudo pacman -S gcc wayland wayland-protocols cmocka
+```
 
 ---
 
@@ -84,25 +118,89 @@ Each object includes `index`, `name`, `active`, `urgent`, `hidden`, `x`, `y`, `m
 
 ### Watch mode / Events
 
-`wayws -w` stays running and prints events as they arrive. Example:
+`wayws -w` stays running and prints JSON events as they arrive. The event system provides structured, machine-readable JSON events that can be easily integrated with other tools and scripts.
 
+#### Event Format
+
+All events are emitted in clean JSON format:
+
+```json
+{"type":"workspace_created","workspace":{"name":"1","index":1,"output":"DP-1","x":0,"y":0,"active":true,"urgent":false,"hidden":false},"timestamp":1703123456}
+{"type":"workspace_state","workspace":{"name":"1","index":1,"output":"DP-1","x":0,"y":0,"active":true,"urgent":false,"hidden":false},"timestamp":1703123457}
+{"type":"workspace_enter","workspace":{"name":"1","index":1,"output":"DP-1","x":0,"y":0,"active":true,"urgent":false,"hidden":false},"timestamp":1703123458}
+{"type":"grid_movement","workspace":{"name":"2","index":2,"output":"DP-2","x":0,"y":0,"active":true,"urgent":false,"hidden":false},"direction":"right","timestamp":1703123459}
 ```
-event=workspace_created
-event=state name="1" x=0 y=0 active=1 urgent=0 hidden=0
-event=output_enter output="DP-1"
-event=workspace_enter workspace="1" output="DP-1"
+
+#### Event Types
+
+**Protocol Events** (from ext-workspace-v1):
+* `workspace_created` - When a workspace is created
+* `workspace_destroyed` - When a workspace is removed
+* `workspace_name` - When workspace name changes
+* `workspace_coordinates` - When workspace coordinates change
+* `workspace_state` - When workspace state changes (active/urgent/hidden)
+* `workspace_enter` / `workspace_leave` - When workspaces enter/leave groups
+* `output_enter` / `output_leave` - When outputs enter/leave groups
+
+**Custom Events**:
+* `grid_movement` - When navigating between workspaces using directional commands
+
+#### Event Integration Examples
+
+**Status Bar Updates**:
+```bash
+./wayws -w | while read -r event; do
+    if echo "$event" | jq -e '.type == "workspace_state" and .workspace.active == true' >/dev/null; then
+        pkill -RTMIN+1 waybar
+    fi
+done
 ```
 
-Events emitted:
+**Notification System**:
+```bash
+./wayws -w | while read -r event; do
+    if echo "$event" | jq -e '.workspace.urgent == true' >/dev/null; then
+        workspace=$(echo "$event" | jq -r '.workspace.name')
+        dunstify -u critical "Urgent workspace: $workspace"
+    fi
+done
+```
 
-* `workspace_created`
-* `name` (old/new workspace name) – initial empty→name rename suppressed
-* `state` (active/urgent/hidden + coordinates)
-* `workspace_enter` / `workspace_leave` (association with an output)
-* `output_enter` / `output_leave` (group membership changes)
-* `workspace_removed`
+**Sound Effects**:
+```bash
+./wayws -w | while read -r event; do
+    if echo "$event" | jq -e '.type == "grid_movement"' >/dev/null; then
+        paplay /usr/share/sounds/freedesktop/stereo/complete.oga
+    fi
+done
+```
+
+**Custom Event Handler**:
+```bash
+#!/bin/bash
+./wayws -w | while read -r event; do
+    case $(echo "$event" | jq -r '.type') in
+        "workspace_state")
+            if [ "$(echo "$event" | jq -r '.workspace.active')" = "true" ]; then
+                workspace=$(echo "$event" | jq -r '.workspace.name')
+                output=$(echo "$event" | jq -r '.workspace.output')
+                echo "Switched to workspace $workspace on $output"
+            fi
+            ;;
+        "grid_movement")
+            direction=$(echo "$event" | jq -r '.direction')
+            workspace=$(echo "$event" | jq -r '.workspace.name')
+            echo "Moved $direction to workspace $workspace"
+            ;;
+    esac
+done
+```
 
 `--exec CMD` runs *after* each emitted event (and after activations) which makes it easy to trigger bar refreshes, etc.
+
+See `examples/event-listener.sh` for a complete example.
+
+
 
 ---
 

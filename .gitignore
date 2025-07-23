@@ -1,5 +1,6 @@
 # Executable
 wayws
+test_runner*
 
 # Generated files
 ext_workspace_client.c
